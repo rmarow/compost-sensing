@@ -1,0 +1,30 @@
+# Create .gitignore in your project root
+cat > .gitignore << 'EOF'
+# Credentials and secrets
+credentials.json
+config_local.py
+*.key
+*.pem
+
+# Environment and local files
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# Database files (these get big!)
+*.db
+*.sqlite
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*~
+
+# Local testing
+test_data/
+EOF
