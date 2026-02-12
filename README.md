@@ -51,8 +51,6 @@ Follow the wiring diagram in `GETTING_STARTED.md`:
 python sensor_test.py
 ```
 
-You should see temperature and humidity readings! If not, check `GETTING_STARTED.md` for troubleshooting.
-
 ### Step 5: Initialize Database and Start Monitoring
 
 ```bash
@@ -124,5 +122,3 @@ DASHBOARD_REFRESH = 30  # Dashboard auto-refresh every 30 seconds
 ```
 
 ---
-
-You're ready to go! Start with sensor_test.py and work through the Quick Start steps. The system is designed to be simple and reliable.
