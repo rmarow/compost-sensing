@@ -6,6 +6,7 @@ This is a  guide to setting up and running the compost monitoring system.
 
 ### Core Files
 - **`GETTING_STARTED.md`** - Hardware setup guide (wiring diagrams, initial config)
+- **`wiring_guide.md`** - How to wire the sensors
 - **`config.py`** - All configuration settings (thresholds, intervals, etc.)
 - **`database_setup.py`** - Creates the SQLite database
 - **`sensor_test.py`** - Tests your DHT22 sensor
@@ -15,7 +16,11 @@ This is a  guide to setting up and running the compost monitoring system.
 
 ## 🚀 Quick Start (5 Steps)
 
-### Step 1: Copy Files to Your Raspberry Pi
+### Step 1: Read the Wiring Guide
+
+`/WIRING_GUIDE.md`
+
+### Step 2: Copy Files to Your Raspberry Pi
 
 ```bash
 # On your computer, copy all files to the Pi
@@ -24,34 +29,35 @@ scp -r /home/claude/* pi@raspberrypi.local:~/farm-monitoring/
 # OR use a USB drive or Git
 ```
 
-### Step 2: SSH into Your Pi and Install Dependencies
+### Step 3: SSH into Your Pi
 
 ```bash
 ssh pi@raspberrypi.local
+
+sudo raspi-config
+
+sudo reboot
+```
+
+### Step 4: Install Dependencies
+
+```bash 
 cd ~/farm-monitoring
 
-# Create virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
 # Install required packages
-pip install flask adafruit-circuitpython-dht gspread oauth2client plotly pandas RPi.GPIO
+pip install -r requirements_updated.txt
 ```
 
-### Step 3: Wire Up Your DHT22 Sensor
-
-Follow the wiring diagram in `GETTING_STARTED.md`:
-- DHT22 VCC → Pi Pin 1 (3.3V)
-- DHT22 Data → Pi Pin 7 (GPIO 4)
-- DHT22 GND → Pi Pin 6 (Ground)
-
-### Step 4: Test Your Sensor
+### Step 5: Test Your Sensor
 
 ```bash
 python sensor_test.py
 ```
 
-### Step 5: Initialize Database and Start Monitoring
+### Step 6: Initialize Database and Start Monitoring
 
 ```bash
 # Create database
@@ -73,13 +79,41 @@ Now open your web browser and go to: **http://raspberrypi.local:5000**
 Edit `config.py` to change:
 
 ### Alert Thresholds
+
+#### DS18B20 Settings (Compost Temperature)
+
 ```python
-TEMP_HIGH_THRESHOLD = 65  # Alert if above 65°C
-TEMP_LOW_THRESHOLD = 40   # Alert if below 40°C
-HUMIDITY_LOW_THRESHOLD = 40
-HUMIDITY_HIGH_THRESHOLD = 70
+DS18B20_ENABLED = True
+
+DS18B20_LOCATIONS = [
+    {
+        "id": "bin1_probe",
+        "name": "Bin 1 - Compost Core",
+        "enabled": True,
+    },
+]
+
+# Alert thresholds for compost
+DS18B20_TEMP_HIGH_THRESHOLD = 70  # Too hot!
+DS18B20_TEMP_LOW_THRESHOLD = 35   # Not composting
 ```
 
+#### DHT11 Settings (Ambient Conditions)
+
+```python
+DHT11_SENSORS = [
+    {
+        "id": "bin1_ambient",
+        "name": "Bin 1 - Ambient",
+        "gpio_pin": 17,  # GPIO 17
+        "enabled": True
+    },
+]
+
+# Ambient thresholds
+DHT11_TEMP_HIGH_THRESHOLD = 40  # Ambient too hot
+DHT11_HUMIDITY_LOW_THRESHOLD = 30  # Too dry
+DHT11_HUMIDITY_HIGH_THRESHOLD = 85  # Too humid
 ### Reading Interval
 ```python
 READING_INTERVAL = 300  # 5 minutes (recommended for compost)
