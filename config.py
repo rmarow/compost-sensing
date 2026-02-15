@@ -1,67 +1,81 @@
 """
 Configuration file for Farm Monitoring System
-Adjust these settings for your deployment
+Updated for DS18B20 (waterproof temp) + DHT11 (ambient temp/humidity)
 """
 
 # ============================================================================
 # SENSOR CONFIGURATION
 # ============================================================================
 
-# DHT22 Sensor GPIO Pin (BCM numbering)
-DHT22_GPIO_PIN = 4  # GPIO 4 = Physical Pin 7
-
 # Sensor reading interval (seconds)
 READING_INTERVAL = 300  # 5 minutes
 
 # ============================================================================
-# ALERT THRESHOLDS
+# DS18B20 CONFIGURATION (Waterproof Temperature Probes)
 # ============================================================================
 
-# Temperature alerts (Celsius)
-TEMP_HIGH_THRESHOLD = 71.1  # Alert if above 71.1°C (159.98°F)
-TEMP_LOW_THRESHOLD = 54.5   # Alert if below 54.5°C (130.1°F)
+DS18B20_ENABLED = True
 
-# Humidity/Moisture alerts (percentage)
-#TODO: ask becca and talia about this range
-HUMIDITY_LOW_THRESHOLD = 40  # Alert if below 40%
-HUMIDITY_HIGH_THRESHOLD = 70 # Alert if above 70%
+# DS18B20 sensor locations (will auto-detect sensor IDs)
+DS18B20_LOCATIONS = [
+    {
+        "id": "bin1_probe",
+        "name": "Bin 1 - Compost Core",
+        "enabled": True,
+    },
+]
+
+# DS18B20 temperature thresholds (Celsius)
+DS18B20_TEMP_HIGH_THRESHOLD = 65  # Alert if above 65°C
+DS18B20_TEMP_LOW_THRESHOLD = 40   # Alert if below 40°C
+
+# ============================================================================
+# DHT11 CONFIGURATION (Ambient Temperature & Humidity)
+# ============================================================================
+
+DHT11_SENSORS = [
+    {
+        "id": "bin1_ambient",
+        "name": "Bin 1 - Ambient",
+        "gpio_pin": 17,  # GPIO 17 = Physical Pin 11
+        "enabled": True
+    },
+]
+
+# DHT11 Temperature thresholds (Celsius)
+DHT11_TEMP_HIGH_THRESHOLD = 40
+DHT11_TEMP_LOW_THRESHOLD = 0
+
+# DHT11 Humidity thresholds (percentage)
+DHT11_HUMIDITY_LOW_THRESHOLD = 40
+DHT11_HUMIDITY_HIGH_THRESHOLD = 70
 
 # ============================================================================
 # DATABASE CONFIGURATION
 # ============================================================================
 
 DATABASE_PATH = "/home/pi/farm-monitoring/compost_data.db"
-
-# Data retention (days) - older data will be archived
+# TODO: figure out how long this should be
+### NOTE: May want to change to daily or weekly averages and keep for more than a year
 DATA_RETENTION_DAYS = 365
 
 # ============================================================================
 # DASHBOARD CONFIGURATION
 # ============================================================================
 
-# Flask server settings
-FLASK_HOST = "0.0.0.0"  # Listen on all network interfaces
+FLASK_HOST = "0.0.0.0"
 FLASK_PORT = 5000
-FLASK_DEBUG = False  # Set to True for development
-
-# Dashboard refresh rate (seconds)
+FLASK_DEBUG = False
 DASHBOARD_REFRESH = 30
 
 # ============================================================================
 # GOOGLE SHEETS INTEGRATION
 # ============================================================================
 
-# Enable/disable Google Sheets sync
-GOOGLE_SHEETS_ENABLED = False  # Set to True when configured
-
-# Google Sheets credentials file path
+GOOGLE_SHEETS_ENABLED = False
 GOOGLE_CREDENTIALS_FILE = "/home/pi/farm-monitoring/credentials.json"
-
-# Google Sheet name
 GOOGLE_SHEET_NAME = "Milk and Honey Farm - Compost Data"
-
-# Sync interval (seconds) - SOW specifies hourly
-GOOGLE_SHEETS_SYNC_INTERVAL = 3600  # 1 hour
+GOOGLE_SHEETS_SYNC_INTERVAL = 3600
 
 # ============================================================================
 # ALERT NOTIFICATIONS
@@ -73,12 +87,14 @@ EMAIL_ALERTS_ENABLED = False  # Set to True when configured
 # Email settings (for Gmail, you'll need an app-specific password)
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
+# TODO - May need to get a system email or something for milk and honey
 SMTP_USERNAME = "your-email@gmail.com"
 SMTP_PASSWORD = "your-app-specific-password"
 
 # Alert recipients (list of email addresses)
 ALERT_RECIPIENTS = [
-    "farm-manager@example.com",
+    "farmerbecca@boulderjcc.org",
+    "talia.edah@boulderjcc.org"
 ]
 
 # Alert cooldown (seconds) - prevent spam
@@ -86,23 +102,41 @@ ALERT_RECIPIENTS = [
 ALERT_COOLDOWN = 3600  # 1 hour
 
 # ============================================================================
-# COMPOST BIN CONFIGURATION
+# SMS ALERTS (Two Options)
 # ============================================================================
 
-# Sensor locations (for  multi-bin expansion)
-SENSOR_LOCATIONS = [
-    {
-        "id": "bin1_top",
-        "name": "Bin 1 - Top",
-        "gpio_pin": 4,
-        "enabled": True
-    },
-    # Add more sensors as you expand
-=
+# TODO: figure out if text is needed
+#  Email-to-SMS Gateway (FREE!)
+# Use your carrier's email-to-SMS gateway
+# Each carrier has an email address that converts to SMS
+# Format: phonenumber@carrier-gateway.com
+# 
+# Common carrier gateways:
+# Verizon: phonenumber@vtext.com
+# AT&T: phonenumber@txt.att.net  
+# T-Mobile: phonenumber@tmomail.net
+# Sprint: phonenumber@messaging.sprintpcs.com
+# 
+# Example: 3035551234@vtext.com
+
+SMS_RECIPIENTS = [
+    # Add phone numbers (Twilio) or email-to-SMS addresses (free)
+    # "5551234567",  # For Twilio
+    # "5551234567@vtext.com",  # For free email-to-SMS
+]
 
 # ============================================================================
 # LOGGING
 # ============================================================================
 
 LOG_FILE = "/home/pi/farm-monitoring/farm_monitor.log"
-LOG_LEVEL = "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG_LEVEL = "INFO"
+
+# ============================================================================
+# ADVANCED SETTINGS
+# ============================================================================
+
+W1_DEVICE_DIR = "/sys/bus/w1/devices"
+DS18B20_CONVERSION_TIME = 0.75
+DHT11_MAX_RETRIES = 3
+DHT11_RETRY_DELAY = 2
