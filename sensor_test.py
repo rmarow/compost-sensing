@@ -9,7 +9,7 @@ import glob
 import os
 import board
 import adafruit_dht
-import config_updated as config
+import config
 
 def test_ds18b20():
     """Test DS18B20 waterproof temperature sensor(s)"""

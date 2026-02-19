@@ -38,7 +38,7 @@ DHT11_SENSORS = [
         "id": "bin1_ambient",
         "name": "Bin 1 - Ambient",
         "gpio_pin": 17,  # GPIO 17 = Physical Pin 11
-        "enabled": True
+        "enabled": False 
     },
 ]
 
@@ -54,7 +54,7 @@ DHT11_HUMIDITY_HIGH_THRESHOLD = 70
 # DATABASE CONFIGURATION
 # ============================================================================
 
-DATABASE_PATH = "/home/pi/farm-monitoring/compost_data.db"
+DATABASE_PATH = "/home/rmarowitz/compost-sensing/compost_data.db"
 # TODO: figure out how long this should be
 ### NOTE: May want to change to daily or weekly averages and keep for more than a year
 DATA_RETENTION_DAYS = 365
@@ -73,7 +73,7 @@ DASHBOARD_REFRESH = 30
 # ============================================================================
 
 GOOGLE_SHEETS_ENABLED = False
-GOOGLE_CREDENTIALS_FILE = "/home/pi/farm-monitoring/credentials.json"
+GOOGLE_CREDENTIALS_FILE = "/home/rmarowitz/compost-sensing/credentials.json"
 GOOGLE_SHEET_NAME = "Milk and Honey Farm - Compost Data"
 GOOGLE_SHEETS_SYNC_INTERVAL = 3600
 
@@ -93,8 +93,9 @@ SMTP_PASSWORD = "your-app-specific-password"
 
 # Alert recipients (list of email addresses)
 ALERT_RECIPIENTS = [
-    "farmerbecca@boulderjcc.org",
-    "talia.edah@boulderjcc.org"
+    # "farmerbecca@boulderjcc.org",
+    # "talia.edah@boulderjcc.org",
+    "marowitzrobyn14@gmail.com"
 ]
 
 # Alert cooldown (seconds) - prevent spam

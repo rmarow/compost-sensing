@@ -7,7 +7,7 @@ Creates SQLite database with sensor_type field
 import sqlite3
 import os
 from datetime import datetime
-import config_updated as config
+import config
 
 def create_database():
     """Create SQLite database and tables"""

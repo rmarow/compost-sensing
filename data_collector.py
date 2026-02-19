@@ -14,7 +14,7 @@ import adafruit_dht
 from datetime import datetime
 import logging
 import sys
-import config_updated as config
+import config as config
 from notifications import AlertNotifier
 
 # Setup logging
