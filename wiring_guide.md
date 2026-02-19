@@ -17,7 +17,7 @@ You have TWO types of sensors - perfect combination for compost monitoring!
 - **Not waterproof**: For ambient air only
 - **Protocol**: Same as DHT22 (one sensor per GPIO pin)
 
-## 🎯 Recommended Setup
+## 🎯 Ideal Setup
 
 ```
 Compost Bin Setup:
