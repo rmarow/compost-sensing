@@ -68,7 +68,8 @@ class AlertNotifier:
             return True
             
         except Exception as error:
-
+            logger.error(f"Failed to send email alert: {error}")
+            return False
     
     def _create_text_body(self, alert_data):
         """Create plain text email body"""
@@ -154,7 +155,7 @@ This is an automated alert from the farm monitoring system.
         
         <div class="footer">
             <p>This is an automated alert from the Milk and Honey Farm monitoring system.</p>
-            <p>To adjust alert thresholds, edit config_updated.py on your Raspberry Pi.</p>
+            <p>To adjust alert thresholds, edit config.py on your Raspberry Pi.</p>
         </div>
     </div>
 </body>
@@ -183,20 +184,20 @@ def test_notifications(config):
     print(f"Email enabled: {config.EMAIL_ALERTS_ENABLED}")
     print(f"Recipients: {config.ALERT_RECIPIENTS}")
     
-    if config.EMAIL_ALERTS_ENABLED 
+    if config.EMAIL_ALERTS_ENABLED:
         success = notifier.send_alert(test_alert)
         if success:
             print("\n✅ Test alert sent successfully!")
-            print("Check your email/phone for the test message.")
+            print("Check your email for the test message.")
         else:
             print("\n❌ Failed to send test alert. Check logs for details.")
     else:
-        print("\n⚠️  No notification methods enabled.")
-        print("Enable EMAIL_ALERTS_ENABLED  in config.")
+        print("\n⚠️  Email alerts not enabled.")
+        print("Set EMAIL_ALERTS_ENABLED = True in config.py")
     
     print("=" * 60)
 
 if __name__ == "__main__":
     # Test the notification system
-    import config_updated as config
+    import config
     test_notifications(config)
