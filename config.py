@@ -82,14 +82,14 @@ GOOGLE_SHEETS_SYNC_INTERVAL = 3600
 # ============================================================================
 
 # Enable/disable email alerts
-EMAIL_ALERTS_ENABLED = False  # Set to True when configured
+EMAIL_ALERTS_ENABLED = True  # Set to True when configured
 
 # Email settings (for Gmail, you'll need an app-specific password)
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 # TODO - May need to get a system email or something for milk and honey
-SMTP_USERNAME = "your-email@gmail.com"
-SMTP_PASSWORD = "your-app-specific-password"
+SMTP_USERNAME = "marowitzrobyn14@gmail.com"
+SMTP_PASSWORD = ""
 
 # Alert recipients (list of email addresses)
 ALERT_RECIPIENTS = [
@@ -130,7 +130,7 @@ SMS_RECIPIENTS = [
 # LOGGING
 # ============================================================================
 
-LOG_FILE = "/home/pi/farm-monitoring/farm_monitor.log"
+LOG_FILE = "/home/rmarowitz/compost-sensing/compost-sensing.log"
 LOG_LEVEL = "INFO"
 
 # ============================================================================
@@ -141,3 +141,8 @@ W1_DEVICE_DIR = "/sys/bus/w1/devices"
 DS18B20_CONVERSION_TIME = 0.75
 DHT11_MAX_RETRIES = 3
 DHT11_RETRY_DELAY = 2
+
+try:
+    from config_local import *
+except ImportError:
+    pass

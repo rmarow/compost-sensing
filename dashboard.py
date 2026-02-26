@@ -7,8 +7,9 @@ Web interface for viewing sensor data, alerts, and system status
 from flask import Flask, render_template, jsonify, request
 import sqlite3
 from datetime import datetime, timedelta
-import config
 import json
+import config
+
 
 app = Flask(__name__)
 app.config['DEBUG'] = config.FLASK_DEBUG
