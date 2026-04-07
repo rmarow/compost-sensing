@@ -191,11 +191,7 @@
         </header>
         
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Readings</div>
-                <div class="stat-value">{{ total_readings }}</div>
-            </div>
-            <div class="stat-card">
+<div class="stat-card">
                 <div class="stat-label">Active Alerts</div>
                 <div class="stat-value {% if alerts|length > 0 %}status-alert{% else %}status-good{% endif %}">
                     {{ alerts|length }}
@@ -263,10 +259,17 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="chart-container" id="chart-{{ reading.sensor_id }}"></div>
         </div>
         {% endfor %}
+
+        <!-- Combined chart for both probes -->
+        <div class="sensor-card">
+            <div class="sensor-header">
+                <div class="sensor-name">Compost Temperature - All Probes</div>
+                <div class="sensor-status status-badge-good">ACTIVE</div>
+            </div>
+            <div class="chart-container" id="combined-chart"></div>
+        </div>
         
         <div class="last-update">
             <span id="last-update-time">Last updated: Loading...</span>
@@ -277,10 +280,8 @@
         // Auto-refresh configuration
         const REFRESH_INTERVAL = {{ config.DASHBOARD_REFRESH * 1000 }};
         
-        // Load historical charts
-        {% for reading in readings %}
-        loadHistoricalChart('{{ reading.sensor_id }}', '{{ reading.sensor_location }}');
-        {% endfor %}
+        // Load combined chart for both probes
+        loadCombinedChart();
         
         // Set up auto-refresh
         setInterval(refreshData, REFRESH_INTERVAL);
@@ -300,55 +301,35 @@
             document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
         }
         
-        function loadHistoricalChart(sensorId, sensorName) {
-            fetch(`/api/historical/${sensorId}?hours=24`)
-                .then(response => response.json())
-                .then(data => {
-                    const timestamps = data.data.map(d => d.timestamp);
-                    const temps = data.data.map(d => d.temperature_c);
-                    const humidity = data.data.map(d => d.humidity);
-                    
-                    const trace1 = {
-                        x: timestamps,
-                        y: temps,
-                        name: 'Temperature (°C)',
-                        type: 'scatter',
-                        line: {color: '#f56565'}
-                    };
-                    
-                    const traces = [trace1];
-                    
-                    // Only add humidity trace if data exists
-                    if (humidity.some(h => h !== null)) {
-                        const trace2 = {
-                            x: timestamps,
-                            y: humidity,
-                            name: 'Humidity (%)',
-                            type: 'scatter',
-                            yaxis: 'y2',
-                            line: {color: '#4299e1'}
-                        };
-                        traces.push(trace2);
-                    }
-                    
-                    const layout = {
-                        title: `24 Hour History - ${sensorName}`,
-                        xaxis: {title: 'Time'},
-                        yaxis: {title: 'Temperature (°C)'},
-                        showlegend: true
-                    };
-                    
-                    // Add second y-axis if humidity exists
-                    if (humidity.some(h => h !== null)) {
-                        layout.yaxis2 = {
-                            title: 'Humidity (%)',
-                            overlaying: 'y',
-                            side: 'right'
-                        };
-                    }
-                    
-                    Plotly.newPlot(`chart-${sensorId}`, traces, layout, {responsive: true});
-                });
+        function loadCombinedChart() {
+            Promise.all([
+                fetch('/api/historical/probe_1ft?hours=24').then(r => r.json()),
+                fetch('/api/historical/probe_2ft?hours=24').then(r => r.json())
+            ]).then(([data1ft, data2ft]) => {
+                const trace1 = {
+                    x: data1ft.data.map(d => d.timestamp),
+                    y: data1ft.data.map(d => d.temperature_c),
+                    name: 'Bin 1 - 1ft Deep',
+                    type: 'scatter',
+                    line: {color: '#f56565'}
+                };
+                const trace2 = {
+                    x: data2ft.data.map(d => d.timestamp),
+                    y: data2ft.data.map(d => d.temperature_c),
+                    name: 'Bin 1 - 2ft Deep',
+                    type: 'scatter',
+                    line: {color: '#48bb78'}
+                };
+                const layout = {
+                    title: '24 Hour Temperature History - All Probes',
+                    xaxis: {title: 'Time'},
+                    yaxis: {title: 'Temperature (°C)'},
+                    showlegend: true
+                };
+                Plotly.newPlot('combined-chart', [trace1, trace2], layout, {responsive: true});
+            }).catch(error => {
+                console.error('Error loading chart data:', error);
+            });
         }
         
         function refreshData() {
@@ -357,7 +338,6 @@
             fetch('/api/latest')
                 .then(response => response.json())
                 .then(data => {
-                    // Reload page to update all data
                     location.reload();
                 })
                 .catch(error => {
