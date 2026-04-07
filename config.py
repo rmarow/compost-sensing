@@ -8,7 +8,7 @@ Updated for DS18B20 (waterproof temp) + DHT11 (ambient temp/humidity)
 # ============================================================================
 
 # Sensor reading interval (seconds)
-READING_INTERVAL = 300  # 5 minutes
+READING_INTERVAL = 1800  # 30 minutes
 
 # ============================================================================
 # DS18B20 CONFIGURATION (Waterproof Temperature Probes)
@@ -19,8 +19,15 @@ DS18B20_ENABLED = True
 # DS18B20 sensor locations (will auto-detect sensor IDs)
 DS18B20_LOCATIONS = [
     {
-        "id": "bin1_probe",
-        "name": "Bin 1 - Compost Core",
+        "id": "1ft_probe",
+        "name": "Shorter probe",
+        "device_id": "28-0000005fe1bf"
+        "enabled": True,
+    },
+    {
+        "id": "2ft_probe",
+        "name": "Longer probe",
+        "device_id": "28-0000005f6979"
         "enabled": True,
     },
 ]

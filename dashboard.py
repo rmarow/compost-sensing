@@ -26,7 +26,7 @@ def get_latest_readings():
     cursor = conn.cursor()
     
     readings = []
-    for sensor_config in config.SENSOR_LOCATIONS:
+    for sensor_config in config.DS18B20_LOCATIONS:
         if sensor_config['enabled']:
             cursor.execute('''
                 SELECT * FROM sensor_readings 
