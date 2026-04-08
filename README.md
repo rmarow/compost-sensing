@@ -64,8 +64,8 @@ A custom case was designed and 3D printed to house the Raspberry Pi on the compo
 - **Pi standoffs** — four interior nubs match the Raspberry Pi 4 mounting hole pattern; Pi sits flush against the back wall
 
 ### Files
-case/case.stl                   ← main body (
-case/lid.stl                    ← snap-on front panel 
+case-specs/case.stl                   ← main body (
+case-specs/lid.stl                    ← snap-on front panel 
 
 --- 
 
