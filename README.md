@@ -9,16 +9,13 @@
 
 ### Monitors Your Compost
 - **DS18B20 Waterproof Probes**: Measure temperature INSIDE the compost pile
-- **DHT11 Sensors**: Measure ambient temperature and humidity around bins
-- **Automatic Alerts**: Get email and text when temps are too high/low or humidity is off
+- **Automatic Alerts**: Get email and text when temps are too high/low
 - **Web Dashboard**: View real-time data and 24-hour trends from any device
 - **Data Logging**: Everything stored locally in SQLite database
 
 ### Your Alert Thresholds
 - 🔥 **Compost too hot**: > 65°C (149°F)
 - ❄️ **Compost too cold**: < 40°C (104°F)
-- 💧 **Air too dry**: < 40% humidity
-- 💦 **Air too humid**: > 70% humidity
 
 ---
 
@@ -26,15 +23,14 @@
 
 ### Hardware
 - **Raspberry Pi 5** (with Raspberry Pi OS)
-- **DS18B20 Waterproof Temperature Probe** (stainless steel, goes IN compost)
-- **DHT11 Ambient Sensor** (measures air temp/humidity OUTSIDE bin)
+- **DS18B20 Waterproof Temperature Probes** (stainless steel, goes IN compost)
 - **4.7kΩ Resistor** (required for DS18B20)
 - **Jumper wires** and power supply
 
 ### Software Files
 
 **Documentation:**
-- `README_FINAL.md` (this file) - Complete setup guide
+- `README.md` (this file) - Complete setup guide
 - `WIRING_GUIDE.md` - Detailed sensor wiring diagrams
 - `ALERT_SETUP_GUIDE.md` - Email and SMS setup instructions
 
@@ -58,9 +54,10 @@
 
 ### Step 1: Wire Your Sensors
 
-**Read WIRING_GUIDE_UPDATED.md for detailed diagrams!**
+**Read WIRING_GUIDE.md for detailed diagrams!**
 
 **DS18B20 (Waterproof - goes IN compost):**
+Note: there are 2 of these, but they share the exact same wiring config. A screw top breakout board is how they are attached to the Pi.
 ```
 RED wire    → Pin 1 (3.3V)
 YELLOW wire → Pin 7 (GPIO 4)
@@ -68,21 +65,15 @@ BLACK wire  → Pin 9 (Ground)
 + 4.7kΩ resistor between RED and YELLOW
 ```
 
-**DHT11 (Ambient - goes OUTSIDE bin):**
-```
-+ (VCC)  → Pin 2 (5V)
-OUT      → Pin 11 (GPIO 17)
-- (GND)  → Pin 14 (Ground)
-```
-
 ### Step 2: Copy Files to Raspberry Pi
 
 ```bash
 # From your computer
-scp -r * pi@raspberrypi.local:~/farm-monitoring/
+scp -r * pi@raspberrypi.local:~/compost-sensing/
 
 # Or use USB drive or Git
 ```
+Note: I used git...this repo to be specific. Instructions can be found online of how to connect Raspberry Pi to a monitor, wifi, keyboard, and mouse to code and test directly on the device. 
 
 ### Step 3: SSH and Enable 1-Wire
 
@@ -101,20 +92,20 @@ sudo reboot
 
 ```bash
 ssh pi@raspberrypi.local
-cd ~/farm-monitoring
+cd ~/compost-sensing
 
 # Create virtual environment
 python3 -m venv venv
 source venv/bin/activate
 
 # Install packages
-pip install -r requirements_updated.txt
+pip install -r requirements.txt
 ```
 
 ### Step 5: Test Your Sensors
 
 ```bash
-python sensor_test_updated.py
+python sensor_test.py
 ```
 
 **You should see:**
@@ -122,20 +113,15 @@ python sensor_test_updated.py
 ✅ Found 1 DS18B20 sensor(s):
   Sensor 1: 28-xxxxxxxxxxxx
     Reading 1: 55.2°C / 131.4°F
-
-✅ DHT11 Ambient Temperature & Humidity Sensor Test
-  Testing: Bin 1 - Ambient
-    Reading 1:
-      Temperature: 22.0°C / 71.6°F
-      Humidity: 48.0%
 ```
+TODO: update for second sensor.
 
-**If sensors fail**, check WIRING_GUIDE_UPDATED.md troubleshooting section.
+**If sensors fail**, check WIRING_GUIDE.md troubleshooting section.
 
 ### Step 6: Initialize Database
 
 ```bash
-python database_setup_updated.py
+python database_setup.py
 ```
 
 Creates database with tables for sensor readings, alerts, and system status.
@@ -144,14 +130,14 @@ Creates database with tables for sensor readings, alerts, and system status.
 
 **Terminal 1 - Data Collector:**
 ```bash
-cd ~/farm-monitoring
+cd ~/compost-sensing
 source venv/bin/activate
-python data_collector_updated.py
+python data_collector.py
 ```
 
 **Terminal 2 - Dashboard:**
 ```bash
-cd ~/farm-monitoring
+cd ~/compost-sensing
 source venv/bin/activate
 python dashboard.py
 ```
@@ -165,7 +151,7 @@ Open browser and go to: **http://raspberrypi.local:5000**
 
 ## 🔧 Configuration
 
-Edit `config_updated.py` to customize your system:
+Edit `config.py` to customize your system:
 
 ### Temperature Thresholds (Compost)
 
@@ -192,18 +178,19 @@ DHT11_HUMIDITY_HIGH_THRESHOLD = 70  # Alert if > 70%
 ### Reading Interval
 
 ```python
-READING_INTERVAL = 300  # 5 minutes (recommended)
+READING_INTERVAL = 1800  # 30 minutes 
 ```
+This is changeable in the config.py
 
 ### Dashboard Settings
 
 ```python
-DASHBOARD_REFRESH = 30  # Auto-refresh every 30 seconds
+DASHBOARD_REFRESH = 60  # Auto-refresh every 60 seconds
 ```
 
 ---
 
-## 🔔 Email & SMS Alerts (Optional but Recommended!)
+## 🔔 Email & SMS Alerts (Optional)
 
 Get notified immediately when thresholds are violated.
 
@@ -240,7 +227,7 @@ python notifications.py
 
 **Email:**
 ```
-Subject: 🚨 Farm Alert: Bin 1 - Compost Core
+Subject: 🚨 Farm Alert: Shorter Probe (or Longer Probe) - Compost Core
 
 Alert: Temperature too high: 68.5°C
 Threshold: 65°C
@@ -251,11 +238,12 @@ Time: 2026-02-15 2:30 PM
 
 **SMS:**
 ```
-Farm Alert: Bin 1 - Compost Core
+Farm Alert: (Shotrter/Longer) Probe - Compost Core
 Temperature too high: 68.5°C
 ```
 
-**Cooldown:** Won't spam you - 1 hour between duplicate alerts
+Won't spam you - 1 hour between duplicate alerts
+TODO: Finalize this
 
 ---
 
@@ -267,7 +255,7 @@ Make the system start when your Raspberry Pi boots.
 
 **1. Data Collector Service:**
 ```bash
-sudo nano /etc/systemd/system/farm-collector.service
+sudo nano /etc/systemd/system/compost-sensing.service
 ```
 
 Paste:
@@ -279,8 +267,8 @@ After=network.target
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/farm-monitoring
-ExecStart=/home/pi/farm-monitoring/venv/bin/python /home/pi/farm-monitoring/data_collector_updated.py
+WorkingDirectory=/home/pi/compost-sensing
+ExecStart=/home/pi/farm-monitoring/venv/bin/python /home/pi/compost-sensing/data_collector_updated.py
 Restart=always
 RestartSec=10
 
@@ -290,20 +278,20 @@ WantedBy=multi-user.target
 
 **2. Dashboard Service:**
 ```bash
-sudo nano /etc/systemd/system/farm-dashboard.service
+sudo nano /etc/systemd/system/compost-sensor.service
 ```
 
 Paste:
 ```ini
 [Unit]
 Description=Farm Monitoring Dashboard
-After=network.target farm-collector.service
+After=network.target compost-sensor.service
 
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/farm-monitoring
-ExecStart=/home/pi/farm-monitoring/venv/bin/python /home/pi/farm-monitoring/dashboard.py
+WorkingDirectory=/home/pi/compsost-sensor
+ExecStart=/home/pi/farm-monitoring/venv/bin/python /home/pi/compost-sensing/dashboard.py
 Restart=always
 RestartSec=10
 
@@ -314,15 +302,15 @@ WantedBy=multi-user.target
 **3. Enable and Start:**
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable farm-collector.service
+sudo systemctl enable compost-sensor.service
 sudo systemctl enable farm-dashboard.service
-sudo systemctl start farm-collector.service
+sudo systemctl start compost-sensor.service
 sudo systemctl start farm-dashboard.service
 ```
 
 **4. Check Status:**
 ```bash
-sudo systemctl status farm-collector.service
+sudo systemctl status compost-sensor.service
 sudo systemctl status farm-dashboard.service
 ```
 
@@ -450,7 +438,7 @@ ps aux | grep dashboard
 sudo systemctl restart farm-dashboard.service
 
 # Check logs
-tail -f ~/farm-monitoring/farm_monitor.log
+tail -f ~/farm-monitoring/compost-sensing.log
 ```
 
 ### No Data Saving
@@ -463,7 +451,7 @@ ls -lh ~/farm-monitoring/compost_data.db
 python database_setup_updated.py
 
 # Check collector is running
-sudo systemctl status farm-collector.service
+sudo systemctl status compost-sensor.service
 ```
 
 ### Alerts Not Sending
@@ -554,13 +542,13 @@ Physical Layer:          Data Layer:             Interface Layer:
 ### Software Setup:
 - [ ] 1-Wire enabled via raspi-config
 - [ ] Virtual environment created
-- [ ] Dependencies installed from requirements_updated.txt
-- [ ] sensor_test_updated.py shows both sensors working
-- [ ] Database created with database_setup_updated.py
-- [ ] Thresholds configured in config_updated.py
+- [ ] Dependencies installed from requirements.txt
+- [ ] sensor_test.py shows both sensors working
+- [ ] Database created with database_setup.py
+- [ ] Thresholds configured in config.py
 
 ### System Running:
-- [ ] data_collector_updated.py running (or as systemd service)
+- [ ] data_collector.py running (or as systemd service)
 - [ ] dashboard.py running (or as systemd service)
 - [ ] Dashboard accessible at http://raspberrypi.local:5000
 - [ ] Both sensor types showing live data
@@ -574,7 +562,6 @@ Physical Layer:          Data Layer:             Interface Layer:
 
 ### Deployment:
 - [ ] DS18B20 probe inserted 12-18" into compost
-- [ ] DHT11 in weatherproof enclosure outside bin
 - [ ] Cables protected and secured
 - [ ] System running reliably for 24+ hours
 - [ ] Auto-start on boot configured
@@ -641,7 +628,7 @@ Physical Layer:          Data Layer:             Interface Layer:
 tail -f ~/farm-monitoring/farm_monitor.log
 
 # Service logs
-journalctl -u farm-collector.service -f
+journalctl -u compost-sensor.service -f
 journalctl -u farm-dashboard.service -f
 ```
 
@@ -664,19 +651,19 @@ sqlite3 compost_data.db "SELECT COUNT(*) FROM sensor_readings;"
 ### Start/Stop Services
 ```bash
 # Start
-sudo systemctl start farm-collector.service
+sudo systemctl start compost-sensor.service
 sudo systemctl start farm-dashboard.service
 
 # Stop
-sudo systemctl stop farm-collector.service
+sudo systemctl stop compost-sensor.service
 sudo systemctl stop farm-dashboard.service
 
 # Restart
-sudo systemctl restart farm-collector.service
+sudo systemctl restart compost-sensor.service
 sudo systemctl restart farm-dashboard.service
 
 # Status
-sudo systemctl status farm-collector.service
+sudo systemctl status compost-sensor.service
 ```
 
 ### Manual Operation
