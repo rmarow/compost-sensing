@@ -51,6 +51,24 @@
 
 ---
 
+## 🖨️ 3D Printed Weatherproof Case
+
+A custom case was designed and 3D printed to house the Raspberry Pi on the compost bin. STL files are included in the `/case` folder of this repo.
+
+### Case Features
+- **Weatherproof body** — fully enclosed with a snap-on front lid; seal with silicone RTV after assembly
+- **Integrated bin hook** — one-piece design, the top wall extends backward to form an arm + lip that slides over the cap board of the bin wall from the inside
+- **Power hole** — top-right corner of the case (USB-C cable routes up and away)
+- **Sensor holes** — two 6mm holes on the bottom wall so DS18B20 probe cables drop straight down into the compost
+- **Labyrinth vents** — zigzag slots on both side walls allow airflow for passive cooling without letting water in
+- **Pi standoffs** — four interior nubs match the Raspberry Pi 4 mounting hole pattern; Pi sits flush against the back wall
+
+### Files
+case/case.stl                   ← main body (
+case/lid.stl                    ← snap-on front panel 
+
+--- 
+
 ## 🚀 Quick Start (7 Steps)
 
 ### Step 1: Wire Your Sensors
