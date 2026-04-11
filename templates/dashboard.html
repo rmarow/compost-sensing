@@ -5,24 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farm Monitoring Dashboard - Milk and Honey Farm</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
         header {
             background: white;
             border-radius: 15px;
@@ -30,25 +23,29 @@
             margin-bottom: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
-        
-        h1 {
+
+        h1 { color: #2d3748; font-size: 2.5em; margin-bottom: 10px; }
+        h2 { color: #2d3748; margin-bottom: 20px; }
+
+        .subtitle { color: #718096; font-size: 1.1em; }
+
+        .section-title {
             color: #2d3748;
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin: 30px 0 15px;
+            padding-left: 5px;
+            border-left: 4px solid #667eea;
+            padding-left: 12px;
         }
-        
-        .subtitle {
-            color: #718096;
-            font-size: 1.1em;
-        }
-        
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-bottom: 20px;
         }
-        
+
         .stat-card {
             background: white;
             border-radius: 15px;
@@ -56,11 +53,9 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
         }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
+
+        .stat-card:hover { transform: translateY(-5px); }
+
         .stat-label {
             color: #718096;
             font-size: 0.9em;
@@ -68,31 +63,15 @@
             letter-spacing: 0.05em;
             margin-bottom: 10px;
         }
-        
-        .stat-value {
-            color: #2d3748;
-            font-size: 2.5em;
-            font-weight: bold;
-        }
-        
-        .stat-unit {
-            font-size: 0.5em;
-            color: #a0aec0;
-            font-weight: normal;
-        }
-        
-        .status-good {
-            color: #48bb78;
-        }
-        
-        .status-warning {
-            color: #ed8936;
-        }
-        
-        .status-alert {
-            color: #f56565;
-        }
-        
+
+        .stat-value { color: #2d3748; font-size: 2.5em; font-weight: bold; }
+        .stat-unit  { font-size: 0.5em; color: #a0aec0; font-weight: normal; }
+        .stat-sub   { color: #a0aec0; margin-top: 5px; font-size: 0.9em; }
+
+        .status-good    { color: #48bb78; }
+        .status-warning { color: #ed8936; }
+        .status-alert   { color: #f56565; }
+
         .sensor-card {
             background: white;
             border-radius: 15px;
@@ -100,37 +79,24 @@
             margin-bottom: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
-        
+
         .sensor-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-        
-        .sensor-name {
-            font-size: 1.5em;
-            color: #2d3748;
-            font-weight: 600;
-        }
-        
-        .sensor-status {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        
-        .status-badge-good {
-            background: #c6f6d5;
-            color: #22543d;
-        }
-        
-        .status-badge-warning {
-            background: #feebc8;
-            color: #7c2d12;
-        }
-        
+
+        .sensor-name { font-size: 1.5em; color: #2d3748; font-weight: 600; }
+
+        .sensor-status { padding: 8px 16px; border-radius: 20px; font-size: 0.85em; font-weight: 600; }
+        .status-badge-good    { background: #c6f6d5; color: #22543d; }
+        .status-badge-warning { background: #feebc8; color: #7c2d12; }
+        .status-badge-offline { background: #e2e8f0; color: #4a5568; }
+
+        /* Weather card accent */
+        .weather-card { border-top: 4px solid #4299e1; }
+
         .alerts-section {
             background: white;
             border-radius: 15px;
@@ -138,7 +104,7 @@
             margin-bottom: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
-        
+
         .alert-item {
             background: #fff5f5;
             border-left: 4px solid #f56565;
@@ -146,18 +112,17 @@
             margin-bottom: 10px;
             border-radius: 5px;
         }
-        
-        .alert-time {
-            color: #718096;
-            font-size: 0.85em;
+
+        .alert-time    { color: #718096; font-size: 0.85em; }
+        .alert-message { color: #2d3748; font-weight: 500; margin-top: 5px; }
+
+        .no-data {
+            color: #a0aec0;
+            font-style: italic;
+            padding: 20px 0;
+            text-align: center;
         }
-        
-        .alert-message {
-            color: #2d3748;
-            font-weight: 500;
-            margin-top: 5px;
-        }
-        
+
         .last-update {
             text-align: center;
             color: white;
@@ -165,192 +130,329 @@
             font-size: 0.9em;
             opacity: 0.8;
         }
-        
-        .chart-container {
-            margin-top: 20px;
-            height: 300px;
+
+        .chart-container { margin-top: 20px; height: 300px; }
+
+        .inner-grid {
+            background: #f7fafc;
+            box-shadow: none;
         }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .updating {
-            animation: pulse 1.5s infinite;
-        }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .updating { animation: pulse 1.5s infinite; }
     </style>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Farm Monitoring Dashboard</h1>
-            <p class="subtitle">Milk and Honey Farm - Boulder JCC</p>
-            <p class="subtitle" style="margin-top: 10px; font-weight: 600;" id="current-date"></p>
-        </header>
-        
-        <div class="stats-grid">
-<div class="stat-card">
-                <div class="stat-label">Active Alerts</div>
-                <div class="stat-value {% if alerts|length > 0 %}status-alert{% else %}status-good{% endif %}">
-                    {{ alerts|length }}
-                </div>
+<div class="container">
+
+    <!-- ── Header ── -->
+    <header>
+        <h1>🌱 Farm Monitoring Dashboard</h1>
+        <p class="subtitle">Milk and Honey Farm · Boulder JCC</p>
+        <p class="subtitle" style="margin-top:10px;font-weight:600;" id="current-date"></p>
+    </header>
+
+    <!-- ── Summary stats ── -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Active Alerts</div>
+            <div class="stat-value {% if alerts|length > 0 %}status-alert{% else %}status-good{% endif %}">
+                {{ alerts|length }}
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Active Sensors</div>
-                <div class="stat-value status-good">{{ readings|length }}</div>
-            </div>
-            {% if last_sync %}
-            <div class="stat-card">
-                <div class="stat-label">Last Sync</div>
-                <div class="stat-value" style="font-size: 1.2em;">{{ last_sync }}</div>
-            </div>
-            {% endif %}
         </div>
-        
-        {% if alerts|length > 0 %}
-        <div class="alerts-section">
-            <h2 style="margin-bottom: 20px; color: #2d3748;">⚠️ Active Alerts</h2>
-            {% for alert in alerts %}
-            <div class="alert-item">
-                <div class="alert-time">{{ alert.timestamp }}</div>
-                <div class="alert-message">{{ alert.message }}</div>
+        <div class="stat-card">
+            <div class="stat-label">Compost Probes</div>
+            <div class="stat-value status-good">{{ readings|length }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Weather Station</div>
+            <div class="stat-value {% if weather %}status-good{% else %}status-warning{% endif %}"
+                 style="font-size:1.4em;">
+                {% if weather %}Online{% else %}Offline{% endif %}
             </div>
-            {% endfor %}
+        </div>
+        {% if last_sync %}
+        <div class="stat-card">
+            <div class="stat-label">Last Sync</div>
+            <div class="stat-value" style="font-size:1.2em;">{{ last_sync }}</div>
         </div>
         {% endif %}
-        
-        {% for reading in readings %}
-        <div class="sensor-card">
-            <div class="sensor-header">
-                <div class="sensor-name">{{ reading.sensor_location }}</div>
-                <div class="sensor-status status-badge-good">ACTIVE</div>
-            </div>
-            
-            <div class="stats-grid">
-                <div class="stat-card" style="box-shadow: none; background: #f7fafc;">
-                    <div class="stat-label">Temperature</div>
-                    <div class="stat-value 
-                        {% if reading.temperature_c > config.DS18B20_TEMP_HIGH_THRESHOLD %}status-alert
-                        {% elif reading.temperature_c < config.DS18B20_TEMP_LOW_THRESHOLD %}status-alert
-                        {% else %}status-good{% endif %}">
-                        {{ reading.temperature_c }}<span class="stat-unit">°C</span>
-                    </div>
-                    <div style="color: #a0aec0; margin-top: 5px;">{{ reading.temperature_f }}°F</div>
-                </div>
-                
-                {% if reading.humidity %}
-                <div class="stat-card" style="box-shadow: none; background: #f7fafc;">
-                    <div class="stat-label">Humidity</div>
-                    <div class="stat-value 
-                        {% if reading.humidity < config.DHT11_HUMIDITY_LOW_THRESHOLD %}status-alert
-                        {% elif reading.humidity > config.DHT11_HUMIDITY_HIGH_THRESHOLD %}status-alert
-                        {% else %}status-good{% endif %}">
-                        {{ reading.humidity }}<span class="stat-unit">%</span>
-                    </div>
-                </div>
-                {% endif %}
-                
-                <div class="stat-card" style="box-shadow: none; background: #f7fafc;">
-                    <div class="stat-label">Last Reading</div>
-                    <div class="stat-value" style="font-size: 1.2em; color: #4a5568;">
-                        {{ reading.timestamp.split('.')[0] }}
-                    </div>
-                </div>
-            </div>
+    </div>
+
+    <!-- ── Alerts ── -->
+    {% if alerts|length > 0 %}
+    <div class="alerts-section">
+        <h2>⚠️ Active Alerts</h2>
+        {% for alert in alerts %}
+        <div class="alert-item">
+            <div class="alert-time">{{ alert.timestamp }}</div>
+            <div class="alert-message">{{ alert.message }}</div>
         </div>
         {% endfor %}
+    </div>
+    {% endif %}
 
-        <!-- Combined chart for both probes -->
-        <div class="sensor-card">
-            <div class="sensor-header">
-                <div class="sensor-name">Compost Temperature - All Probes</div>
-                <div class="sensor-status status-badge-good">ACTIVE</div>
+    <!-- ════════════════════════════════════════
+         COMPOST PROBES
+    ════════════════════════════════════════ -->
+    <div class="section-title">🌡️ Compost Temperature Probes</div>
+
+    {% for reading in readings %}
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <div class="sensor-name">
+                {{ reading.probe_location }}
+                <span style="font-size:0.6em;color:#a0aec0;font-weight:normal;">
+                    ({{ reading.probe_id }})
+                </span>
             </div>
-            <div class="chart-container" id="combined-chart"></div>
+            <div class="sensor-status status-badge-good">ACTIVE</div>
         </div>
-        
-        <div class="last-update">
-            <span id="last-update-time">Last updated: Loading...</span>
+
+        <div class="stats-grid">
+            <div class="stat-card inner-grid">
+                <div class="stat-label">Temperature</div>
+                <div class="stat-value
+                    {% if reading.temperature_c > config.DS18B20_TEMP_HIGH_THRESHOLD %}status-alert
+                    {% elif reading.temperature_c < config.DS18B20_TEMP_LOW_THRESHOLD %}status-alert
+                    {% else %}status-good{% endif %}">
+                    {{ reading.temperature_c }}<span class="stat-unit">°C</span>
+                </div>
+                <div class="stat-sub">{{ reading.temperature_f }}°F</div>
+            </div>
+
+            {% if reading.humidity %}
+            <div class="stat-card inner-grid">
+                <div class="stat-label">Humidity</div>
+                <div class="stat-value
+                    {% if reading.humidity < config.HUMIDITY_LOW_THRESHOLD %}status-alert
+                    {% elif reading.humidity > config.HUMIDITY_HIGH_THRESHOLD %}status-alert
+                    {% else %}status-good{% endif %}">
+                    {{ reading.humidity }}<span class="stat-unit">%</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="stat-card inner-grid">
+                <div class="stat-label">Probe Address</div>
+                <div class="stat-value" style="font-size:0.85em;color:#4a5568;">
+                    {{ reading.probe_address }}
+                </div>
+            </div>
+
+            <div class="stat-card inner-grid">
+                <div class="stat-label">Last Reading</div>
+                <div class="stat-value" style="font-size:1.2em;color:#4a5568;">
+                    {{ reading.timestamp.split('.')[0] }}
+                </div>
+            </div>
         </div>
     </div>
-    
-    <script>
-        // Auto-refresh configuration
-        const REFRESH_INTERVAL = {{ config.DASHBOARD_REFRESH * 1000 }};
-        
-        // Load combined chart for both probes
-        loadCombinedChart();
-        
-        // Set up auto-refresh
-        setInterval(refreshData, REFRESH_INTERVAL);
-        updateLastRefreshTime();
-        updateCurrentDate();
-        
-        function updateCurrentDate() {
-            const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
-        }
-        
-        function loadCombinedChart() {
-            Promise.all([
-                fetch('/api/historical/probe_1ft?hours=24').then(r => r.json()),
-                fetch('/api/historical/probe_2ft?hours=24').then(r => r.json())
-            ]).then(([data1ft, data2ft]) => {
-                const trace1 = {
-                    x: data1ft.data.map(d => d.timestamp),
-                    y: data1ft.data.map(d => d.temperature_c),
-                    name: 'Bin 1 - 1ft Deep',
+    {% endfor %}
+
+    <!-- Combined compost chart -->
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <div class="sensor-name">Compost Temperature — 24h History</div>
+            <div class="sensor-status status-badge-good">LIVE</div>
+        </div>
+        <div class="chart-container" id="compost-chart"></div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         WEATHER STATION
+    ════════════════════════════════════════ -->
+    <div class="section-title">🌤️ Weather Station</div>
+
+    {% if weather %}
+    <div class="sensor-card weather-card">
+        <div class="sensor-header">
+            <div class="sensor-name">Ecowitt GW1100 + WS69</div>
+            <div class="sensor-status status-badge-good">ONLINE</div>
+        </div>
+
+        <div class="stats-grid">
+            <!-- Outdoor temp -->
+            <div class="stat-card inner-grid">
+                <div class="stat-label">🌡️ Outdoor Temp</div>
+                <div class="stat-value status-good">
+                    {{ weather.outdoor_temp_f | round(1) }}<span class="stat-unit">°F</span>
+                </div>
+                <div class="stat-sub">{{ weather.outdoor_temp_c | round(1) }}°C</div>
+            </div>
+
+            <!-- Outdoor humidity -->
+            <div class="stat-card inner-grid">
+                <div class="stat-label">💧 Outdoor Humidity</div>
+                <div class="stat-value status-good">
+                    {{ weather.outdoor_humidity | round(1) }}<span class="stat-unit">%</span>
+                </div>
+            </div>
+
+            <!-- Wind -->
+            <div class="stat-card inner-grid">
+                <div class="stat-label">💨 Wind</div>
+                <div class="stat-value status-good">
+                    {{ weather.wind_speed_mph | round(1) }}<span class="stat-unit">mph</span>
+                </div>
+                <div class="stat-sub">
+                    Gust {{ weather.wind_gust_mph | round(1) }} mph ·
+                    {{ wind_compass }} ({{ weather.wind_direction_deg | round(0) | int }}°)
+                </div>
+            </div>
+
+            <!-- Rainfall -->
+            <div class="stat-card inner-grid">
+                <div class="stat-label">🌧️ Rain Today</div>
+                <div class="stat-value status-good">
+                    {{ weather.rain_daily_in | round(2) }}<span class="stat-unit">"</span>
+                </div>
+                <div class="stat-sub">Rate: {{ weather.rain_rate_in_hr | round(2) }}"/hr</div>
+            </div>
+
+            <!-- Indoor (gateway sensor) -->
+            <div class="stat-card inner-grid">
+                <div class="stat-label">🏠 Indoor (Gateway)</div>
+                <div class="stat-value" style="color:#4a5568;">
+                    {{ weather.indoor_temp_f | round(1) }}<span class="stat-unit">°F</span>
+                </div>
+                <div class="stat-sub">{{ weather.indoor_humidity | round(1) }}% RH</div>
+            </div>
+
+            <!-- Last weather reading -->
+            <div class="stat-card inner-grid">
+                <div class="stat-label">Last Reading</div>
+                <div class="stat-value" style="font-size:1.2em;color:#4a5568;">
+                    {{ weather.timestamp.split('.')[0] }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather chart -->
+    <div class="sensor-card weather-card">
+        <div class="sensor-header">
+            <div class="sensor-name">Weather — 24h History</div>
+            <div class="sensor-status status-badge-good">LIVE</div>
+        </div>
+        <div class="chart-container" id="weather-chart"></div>
+    </div>
+
+    {% else %}
+    <div class="sensor-card weather-card">
+        <div class="sensor-header">
+            <div class="sensor-name">Ecowitt GW1100 + WS69</div>
+            <div class="sensor-status status-badge-offline">OFFLINE</div>
+        </div>
+        <p class="no-data">
+            No weather data — is the GW1100 connected to WiFi?<br>
+            Run <code>python weather_station.py</code> to test the connection.
+        </p>
+    </div>
+    {% endif %}
+
+    <div class="last-update">
+        <span id="last-update-time">Last updated: Loading...</span>
+    </div>
+
+</div>
+
+<script>
+    const REFRESH_INTERVAL = {{ config.DASHBOARD_REFRESH * 1000 }};
+
+    updateCurrentDate();
+    updateLastRefreshTime();
+    loadCompostChart();
+    loadWeatherChart();
+    setInterval(refreshData, REFRESH_INTERVAL);
+
+    function updateCurrentDate() {
+        const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' };
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', opts);
+    }
+
+    function updateLastRefreshTime() {
+        document.getElementById('last-update-time').textContent =
+            `Last updated: ${new Date().toLocaleString()} (auto-refresh every ${REFRESH_INTERVAL/1000}s)`;
+    }
+
+    function loadCompostChart() {
+        Promise.all([
+            fetch('/api/historical/shallow?hours=24').then(r => r.json()),
+            fetch('/api/historical/deep?hours=24').then(r => r.json())
+        ]).then(([shallow, deep]) => {
+            const traces = [
+                {
+                    x: shallow.data.map(d => d.timestamp),
+                    y: shallow.data.map(d => d.temperature_c),
+                    name: 'Shallow probe',
                     type: 'scatter',
-                    line: {color: '#f56565'}
-                };
-                const trace2 = {
-                    x: data2ft.data.map(d => d.timestamp),
-                    y: data2ft.data.map(d => d.temperature_c),
-                    name: 'Bin 1 - 2ft Deep',
+                    line: { color: '#f56565' }
+                },
+                {
+                    x: deep.data.map(d => d.timestamp),
+                    y: deep.data.map(d => d.temperature_c),
+                    name: 'Deep probe',
                     type: 'scatter',
-                    line: {color: '#48bb78'}
-                };
-                const layout = {
-                    title: '24 Hour Temperature History - All Probes',
-                    xaxis: {title: 'Time'},
-                    yaxis: {title: 'Temperature (°C)'},
-                    showlegend: true
-                };
-                Plotly.newPlot('combined-chart', [trace1, trace2], layout, {responsive: true});
-            }).catch(error => {
-                console.error('Error loading chart data:', error);
-            });
-        }
-        
-        function refreshData() {
-            document.body.classList.add('updating');
-            
-            fetch('/api/latest')
-                .then(response => response.json())
-                .then(data => {
-                    location.reload();
-                })
-                .catch(error => {
-                    console.error('Error refreshing data:', error);
-                    document.body.classList.remove('updating');
-                });
-        }
-        
-        function updateLastRefreshTime() {
-            const now = new Date();
-            document.getElementById('last-update-time').textContent = 
-                `Last updated: ${now.toLocaleString()} (auto-refresh every ${REFRESH_INTERVAL/1000}s)`;
-        }
-    </script>
+                    line: { color: '#48bb78' }
+                }
+            ];
+            Plotly.newPlot('compost-chart', traces, {
+                xaxis: { title: 'Time' },
+                yaxis: { title: 'Temperature (°C)' },
+                showlegend: true,
+                margin: { t: 10 }
+            }, { responsive: true });
+        }).catch(e => console.error('Compost chart error:', e));
+    }
+
+    function loadWeatherChart() {
+        fetch('/api/weather?hours=24')
+            .then(r => r.json())
+            .then(data => {
+                if (!data.length) return;
+                const traces = [
+                    {
+                        x: data.map(d => d.timestamp),
+                        y: data.map(d => d.outdoor_temp_f),
+                        name: 'Outdoor temp (°F)',
+                        type: 'scatter',
+                        line: { color: '#ed8936' }
+                    },
+                    {
+                        x: data.map(d => d.timestamp),
+                        y: data.map(d => d.outdoor_humidity),
+                        name: 'Humidity (%)',
+                        type: 'scatter',
+                        yaxis: 'y2',
+                        line: { color: '#4299e1', dash: 'dot' }
+                    },
+                    {
+                        x: data.map(d => d.timestamp),
+                        y: data.map(d => d.wind_speed_mph),
+                        name: 'Wind (mph)',
+                        type: 'scatter',
+                        yaxis: 'y2',
+                        line: { color: '#9f7aea', dash: 'dash' }
+                    }
+                ];
+                Plotly.newPlot('weather-chart', traces, {
+                    xaxis: { title: 'Time' },
+                    yaxis:  { title: 'Temperature (°F)' },
+                    yaxis2: { title: 'Humidity (%) / Wind (mph)', overlaying: 'y', side: 'right' },
+                    showlegend: true,
+                    margin: { t: 10 }
+                }, { responsive: true });
+            }).catch(e => console.error('Weather chart error:', e));
+    }
+
+    function refreshData() {
+        document.body.classList.add('updating');
+        fetch('/api/latest')
+            .then(() => location.reload())
+            .catch(() => document.body.classList.remove('updating'));
+    }
+</script>
 </body>
 </html>
