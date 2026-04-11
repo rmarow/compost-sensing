@@ -1,184 +1,186 @@
 #!/usr/bin/env python3
 """
-Flask Dashboard for Farm Monitoring System
-Web interface for viewing sensor data, alerts, and system status
+Flask Dashboard — Milk & Honey Farm Compost Monitoring
 """
 
 from flask import Flask, render_template, jsonify, request
 import sqlite3
 from datetime import datetime, timedelta
-import json
 import config
-
+from weather_station import get_latest_weather, get_weather_history, degrees_to_compass
 
 app = Flask(__name__)
 app.config['DEBUG'] = config.FLASK_DEBUG
 
-def get_db_connection():
-    """Create database connection"""
+
+# ============================================================
+# DATABASE HELPERS
+# ============================================================
+
+def get_db():
     conn = sqlite3.connect(config.DATABASE_PATH)
-    conn.row_factory = sqlite3.Row  # Return rows as dictionaries
+    conn.row_factory = sqlite3.Row
     return conn
 
+
 def get_latest_readings():
-    """Get the most recent reading from each sensor"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    readings = []
-    for sensor_config in config.DS18B20_LOCATIONS:
-        if sensor_config['enabled']:
-            cursor.execute('''
-                SELECT * FROM sensor_readings 
-                WHERE sensor_id = ?
-                ORDER BY timestamp DESC 
-                LIMIT 1
-            ''', (sensor_config['id'],))
-            
-            row = cursor.fetchone()
-            if row:
-                readings.append(dict(row))
-    
+    """Most recent reading from each probe (shallow + deep)."""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT cr.*
+        FROM compost_readings cr
+        INNER JOIN (
+            SELECT probe_id, MAX(timestamp) AS latest
+            FROM compost_readings
+            GROUP BY probe_id
+        ) latest ON cr.probe_id = latest.probe_id
+                     AND cr.timestamp = latest.latest
+        ORDER BY cr.probe_id
+    """).fetchall()
     conn.close()
-    return readings
+    return [dict(r) for r in rows]
+
 
 def get_recent_alerts(hours=24):
-    """Get recent unacknowledged alerts"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    since = datetime.now() - timedelta(hours=hours)
-    cursor.execute('''
-        SELECT * FROM alerts 
+    """Unacknowledged alerts from the last N hours."""
+    conn = get_db()
+    since = (datetime.now() - timedelta(hours=hours)).isoformat()
+    rows = conn.execute("""
+        SELECT * FROM alerts
         WHERE timestamp > ? AND acknowledged = 0
         ORDER BY timestamp DESC
-    ''', (since,))
-    
-    alerts = [dict(row) for row in cursor.fetchall()]
+    """, (since,)).fetchall()
     conn.close()
-    return alerts
+    return [dict(r) for r in rows]
 
-def get_historical_data(sensor_id, hours=24):
-    """Get historical sensor data for charting"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    since = datetime.now() - timedelta(hours=hours)
-    cursor.execute('''
-        SELECT timestamp, temperature_c, humidity
-        FROM sensor_readings 
-        WHERE sensor_id = ? AND timestamp > ?
+
+def get_compost_history(probe_id, hours=24):
+    """Historical compost readings for a single probe."""
+    conn = get_db()
+    since = (datetime.now() - timedelta(hours=hours)).isoformat()
+    rows = conn.execute("""
+        SELECT timestamp, temperature_c, temperature_f, humidity
+        FROM compost_readings
+        WHERE probe_id = ? AND timestamp > ?
         ORDER BY timestamp ASC
-    ''', (sensor_id, since))
-    
-    data = [dict(row) for row in cursor.fetchall()]
+    """, (probe_id, since)).fetchall()
     conn.close()
-    return data
+    return [dict(r) for r in rows]
+
+
+# ============================================================
+# ROUTES
+# ============================================================
 
 @app.route('/')
 def index():
-    """Main dashboard page"""
-    latest_readings = get_latest_readings()
-    recent_alerts = get_recent_alerts(hours=24)
-    
-    # Get system status
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Count total readings
-    cursor.execute('SELECT COUNT(*) as count FROM sensor_readings')
-    total_readings = cursor.fetchone()['count']
-    
-    # Get last sync time (if Google Sheets enabled)
-    cursor.execute('''
-        SELECT timestamp FROM sync_log 
-        WHERE status = 'success' 
-        ORDER BY timestamp DESC 
-        LIMIT 1
-    ''')
-    last_sync_row = cursor.fetchone()
+    readings = get_latest_readings()
+    alerts   = get_recent_alerts(hours=24)
+
+    # Weather
+    weather      = get_latest_weather()
+    wind_compass = degrees_to_compass(
+        weather['wind_direction_deg'] if weather else None
+    )
+
+    # Last Google Sheets sync
+    conn = get_db()
+    last_sync_row = conn.execute("""
+        SELECT timestamp FROM sync_log
+        WHERE status = 'success'
+        ORDER BY timestamp DESC LIMIT 1
+    """).fetchone()
     last_sync = last_sync_row['timestamp'] if last_sync_row else None
-    
+
+    # Total reading count
+    total_readings = conn.execute(
+        "SELECT COUNT(*) FROM compost_readings"
+    ).fetchone()[0]
     conn.close()
-    
+
     return render_template('dashboard.html',
-                         readings=latest_readings,
-                         alerts=recent_alerts,
-                         total_readings=total_readings,
-                         last_sync=last_sync,
-                         config=config)
+                           readings=readings,
+                           alerts=alerts,
+                           weather=weather,
+                           wind_compass=wind_compass,
+                           total_readings=total_readings,
+                           last_sync=last_sync,
+                           config=config)
+
 
 @app.route('/api/latest')
 def api_latest():
-    """API endpoint for latest sensor readings (for auto-refresh)"""
-    readings = get_latest_readings()
-    alerts = get_recent_alerts(hours=1)  # Last hour of alerts
-    
+    """Latest compost + weather readings (used by auto-refresh)."""
+    weather = get_latest_weather()
     return jsonify({
-        'readings': readings,
-        'alerts': alerts,
-        'timestamp': datetime.now().isoformat()
+        'readings':     get_latest_readings(),
+        'alerts':       get_recent_alerts(hours=1),
+        'weather':      weather,
+        'wind_compass': degrees_to_compass(
+            weather['wind_direction_deg'] if weather else None
+        ),
+        'timestamp':    datetime.now().isoformat()
     })
 
-@app.route('/api/historical/<sensor_id>')
-def api_historical(sensor_id):
-    """API endpoint for historical data (for charts)"""
+
+@app.route('/api/historical/<probe_id>')
+def api_historical(probe_id):
+    """Historical compost data for a probe (shallow or deep)."""
     hours = request.args.get('hours', default=24, type=int)
-    data = get_historical_data(sensor_id, hours)
-    
-    return jsonify({
-        'sensor_id': sensor_id,
-        'hours': hours,
-        'data': data
-    })
+    data  = get_compost_history(probe_id, hours)
+    return jsonify({'probe_id': probe_id, 'hours': hours, 'data': data})
+
+
+@app.route('/api/weather')
+def api_weather():
+    """Historical weather data for charts."""
+    hours = request.args.get('hours', default=24, type=int)
+    return jsonify(get_weather_history(hours=hours))
+
 
 @app.route('/api/stats')
 def api_stats():
-    """API endpoint for system statistics"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Get various statistics
-    cursor.execute('SELECT COUNT(*) as count FROM sensor_readings')
-    total_readings = cursor.fetchone()['count']
-    
-    cursor.execute('SELECT COUNT(*) as count FROM alerts WHERE acknowledged = 0')
-    active_alerts = cursor.fetchone()['count']
-    
-    cursor.execute('''
-        SELECT MIN(timestamp) as first, MAX(timestamp) as last 
-        FROM sensor_readings
-    ''')
-    row = cursor.fetchone()
-    first_reading = row['first']
-    last_reading = row['last']
-    
-    # Calculate uptime
-    if first_reading and last_reading:
-        first_dt = datetime.fromisoformat(first_reading)
-        last_dt = datetime.fromisoformat(last_reading)
-        uptime_days = (last_dt - first_dt).days
-    else:
-        uptime_days = 0
-    
+    """System statistics."""
+    conn = get_db()
+
+    total   = conn.execute("SELECT COUNT(*) FROM compost_readings").fetchone()[0]
+    n_alert = conn.execute(
+        "SELECT COUNT(*) FROM alerts WHERE acknowledged = 0"
+    ).fetchone()[0]
+
+    row = conn.execute("""
+        SELECT MIN(timestamp) AS first, MAX(timestamp) AS last
+        FROM compost_readings
+    """).fetchone()
     conn.close()
-    
+
+    uptime_days = 0
+    if row['first'] and row['last']:
+        uptime_days = (
+            datetime.fromisoformat(row['last']) -
+            datetime.fromisoformat(row['first'])
+        ).days
+
     return jsonify({
-        'total_readings': total_readings,
-        'active_alerts': active_alerts,
-        'uptime_days': uptime_days,
-        'first_reading': first_reading,
-        'last_reading': last_reading
+        'total_readings': total,
+        'active_alerts':  n_alert,
+        'uptime_days':    uptime_days,
+        'first_reading':  row['first'],
+        'last_reading':   row['last']
     })
+
+
+# ============================================================
+# MAIN
+# ============================================================
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("Starting Farm Monitoring Dashboard")
+    print("Farm Monitoring Dashboard — Milk & Honey Farm")
     print("=" * 60)
-    print(f"Dashboard URL: http://{config.FLASK_HOST}:{config.FLASK_PORT}")
+    print(f"URL:      http://{config.FLASK_HOST}:{config.FLASK_PORT}")
     print(f"Database: {config.DATABASE_PATH}")
-    print(f"Auto-refresh: {config.DASHBOARD_REFRESH} seconds")
+    print(f"Refresh:  every {config.DASHBOARD_REFRESH}s")
     print("=" * 60)
-    print("\nPress Ctrl+C to stop\n")
-    
+    print("Press Ctrl+C to stop\n")
     app.run(host=config.FLASK_HOST, port=config.FLASK_PORT)
