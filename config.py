@@ -153,3 +153,15 @@ try:
     from config_local import *
 except ImportError:
     pass
+
+
+# --- Weather Station (Ecowitt GW1100) ---
+ 
+# IP address of your GW1100 on the local network.
+# Find it in your router's device list, or in the Ecowitt app
+# under "Device List" after the gateway connects to WiFi.
+WEATHER_STATION_IP = "192.168.1.XXX"   # <-- update this after setup
+ 
+# How often to poll the GW1100 (seconds).
+# 16 seconds matches the WS69 sensor reporting interval.
+WEATHER_READING_INTERVAL = 60   # once per minute is plenty for a dashboard
