@@ -21,13 +21,13 @@ DS18B20_LOCATIONS = [
     {
         "id": "1ft_probe",
         "name": "Shorter probe",
-        "device_id": "28-0000005fe1bf"
+        "device_id": "28-0000005fe1bf",
         "enabled": True,
     },
     {
         "id": "2ft_probe",
         "name": "Longer probe",
-        "device_id": "28-0000005f6979"
+        "device_id": "28-0000005f6979",
         "enabled": True,
     },
 ]
