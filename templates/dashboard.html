@@ -214,10 +214,10 @@
             <div class="stat-card inner-grid">
                 <div class="stat-label">Temperature</div>
                 <div class="stat-value
-                    {% if reading.temperature_c > config.DS18B20_TEMP_HIGH_THRESHOLD %}status-alert
-                    {% elif reading.temperature_c < config.DS18B20_TEMP_LOW_THRESHOLD %}status-alert
+                    {% if reading.temperature_f > config.DS18B20_TEMP_HIGH_THRESHOLD %}status-alert
+                    {% elif reading.temperature_f < config.DS18B20_TEMP_LOW_THRESHOLD %}status-alert
                     {% else %}status-good{% endif %}">
-                    {{ reading.temperature_c }}<span class="stat-unit">°C</span>
+                    {{ reading.temperature_f }}<span class="stat-unit">°C</span>
                 </div>
                 <div class="stat-sub">{{ reading.temperature_f }}°F</div>
             </div>
