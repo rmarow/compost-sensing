@@ -148,7 +148,7 @@
 
     <!-- ── Header ── -->
     <header>
-        <h1>🌱 Farm Monitoring Dashboard</h1>
+        <h1>Farm Monitoring Dashboard</h1>
         <p class="subtitle">Milk and Honey Farm · Boulder JCC</p>
         <p class="subtitle" style="margin-top:10px;font-weight:600;" id="current-date"></p>
     </header>
@@ -183,7 +183,7 @@
     <!-- ── Alerts ── -->
     {% if alerts|length > 0 %}
     <div class="alerts-section">
-        <h2>⚠️ Active Alerts</h2>
+        <h2>Active Alerts</h2>
         {% for alert in alerts %}
         <div class="alert-item">
             <div class="alert-time">{{ alert.timestamp }}</div>
@@ -196,7 +196,7 @@
     <!-- ════════════════════════════════════════
          COMPOST PROBES
     ════════════════════════════════════════ -->
-    <div class="section-title">🌡️ Compost Temperature Probes</div>
+    <div class="section-title">Compost Temperature Probes</div>
 
     {% for reading in readings %}
     <div class="sensor-card">
@@ -263,7 +263,7 @@
     <!-- ════════════════════════════════════════
          WEATHER STATION
     ════════════════════════════════════════ -->
-    <div class="section-title">🌤️ Weather Station</div>
+    <div class="section-title">Weather Station</div>
 
     {% if weather %}
     <div class="sensor-card weather-card">
@@ -311,14 +311,6 @@
                 <div class="stat-sub">Rate: {{ weather.rain_rate_in_hr | round(2) }}"/hr</div>
             </div>
 
-            <!-- Indoor (gateway sensor) -->
-            <div class="stat-card inner-grid">
-                <div class="stat-label">🏠 Indoor (Gateway)</div>
-                <div class="stat-value" style="color:#4a5568;">
-                    {{ weather.indoor_temp_f | round(1) }}<span class="stat-unit">°F</span>
-                </div>
-                <div class="stat-sub">{{ weather.indoor_humidity | round(1) }}% RH</div>
-            </div>
 
             <!-- Last weather reading -->
             <div class="stat-card inner-grid">
