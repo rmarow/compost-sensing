@@ -34,7 +34,6 @@
             font-size: 1.4em;
             font-weight: 600;
             margin: 30px 0 15px;
-            padding-left: 5px;
             border-left: 4px solid #667eea;
             padding-left: 12px;
         }
@@ -94,7 +93,6 @@
         .status-badge-warning { background: #feebc8; color: #7c2d12; }
         .status-badge-offline { background: #e2e8f0; color: #4a5568; }
 
-        /* Weather card accent */
         .weather-card { border-top: 4px solid #4299e1; }
 
         .alerts-section {
@@ -133,10 +131,7 @@
 
         .chart-container { margin-top: 20px; height: 300px; }
 
-        .inner-grid {
-            background: #f7fafc;
-            box-shadow: none;
-        }
+        .inner-grid { background: #f7fafc; box-shadow: none; }
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .updating { animation: pulse 1.5s infinite; }
@@ -146,14 +141,14 @@
 <body>
 <div class="container">
 
-    <!-- ── Header ── -->
+    <!-- Header -->
     <header>
         <h1>Farm Monitoring Dashboard</h1>
         <p class="subtitle">Milk and Honey Farm · Boulder JCC</p>
         <p class="subtitle" style="margin-top:10px;font-weight:600;" id="current-date"></p>
     </header>
 
-    <!-- ── Summary stats ── -->
+    <!-- Summary stats -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Active Alerts</div>
@@ -180,7 +175,7 @@
         {% endif %}
     </div>
 
-    <!-- ── Alerts ── -->
+    <!-- Alerts -->
     {% if alerts|length > 0 %}
     <div class="alerts-section">
         <h2>Active Alerts</h2>
@@ -193,9 +188,7 @@
     </div>
     {% endif %}
 
-    <!-- ════════════════════════════════════════
-         COMPOST PROBES
-    ════════════════════════════════════════ -->
+    <!-- Compost Probes -->
     <div class="section-title">Compost Temperature Probes</div>
 
     {% for reading in readings %}
@@ -214,12 +207,12 @@
             <div class="stat-card inner-grid">
                 <div class="stat-label">Temperature</div>
                 <div class="stat-value
-                    {% if reading.temperature_f > config.DS18B20_TEMP_HIGH_THRESHOLD %}status-alert
-                    {% elif reading.temperature_f < config.DS18B20_TEMP_LOW_THRESHOLD %}status-alert
+                    {% if reading.temperature_c > config.DS18B20_TEMP_HIGH_THRESHOLD %}status-alert
+                    {% elif reading.temperature_c < config.DS18B20_TEMP_LOW_THRESHOLD %}status-alert
                     {% else %}status-good{% endif %}">
-                    {{ reading.temperature_f }}<span class="stat-unit">°C</span>
+                    {{ reading.temperature_f }}<span class="stat-unit">°F</span>
                 </div>
-                <div class="stat-sub">{{ reading.temperature_f }}°F</div>
+                <div class="stat-sub">{{ reading.temperature_c }}°C</div>
             </div>
 
             {% if reading.humidity %}
@@ -260,9 +253,7 @@
         <div class="chart-container" id="compost-chart"></div>
     </div>
 
-    <!-- ════════════════════════════════════════
-         WEATHER STATION
-    ════════════════════════════════════════ -->
+    <!-- Weather Station -->
     <div class="section-title">Weather Station</div>
 
     {% if weather %}
@@ -273,26 +264,23 @@
         </div>
 
         <div class="stats-grid">
-            <!-- Outdoor temp -->
             <div class="stat-card inner-grid">
-                <div class="stat-label">🌡️ Outdoor Temp</div>
+                <div class="stat-label">Outdoor Temp</div>
                 <div class="stat-value status-good">
                     {{ weather.outdoor_temp_f | round(1) }}<span class="stat-unit">°F</span>
                 </div>
                 <div class="stat-sub">{{ weather.outdoor_temp_c | round(1) }}°C</div>
             </div>
 
-            <!-- Outdoor humidity -->
             <div class="stat-card inner-grid">
-                <div class="stat-label">💧 Outdoor Humidity</div>
+                <div class="stat-label">Outdoor Humidity</div>
                 <div class="stat-value status-good">
                     {{ weather.outdoor_humidity | round(1) }}<span class="stat-unit">%</span>
                 </div>
             </div>
 
-            <!-- Wind -->
             <div class="stat-card inner-grid">
-                <div class="stat-label">💨 Wind</div>
+                <div class="stat-label">Wind</div>
                 <div class="stat-value status-good">
                     {{ weather.wind_speed_mph | round(1) }}<span class="stat-unit">mph</span>
                 </div>
@@ -302,17 +290,14 @@
                 </div>
             </div>
 
-            <!-- Rainfall -->
             <div class="stat-card inner-grid">
-                <div class="stat-label">🌧️ Rain Today</div>
+                <div class="stat-label">Rain Today</div>
                 <div class="stat-value status-good">
                     {{ weather.rain_daily_in | round(2) }}<span class="stat-unit">"</span>
                 </div>
                 <div class="stat-sub">Rate: {{ weather.rain_rate_in_hr | round(2) }}"/hr</div>
             </div>
 
-
-            <!-- Last weather reading -->
             <div class="stat-card inner-grid">
                 <div class="stat-label">Last Reading</div>
                 <div class="stat-value" style="font-size:1.2em;color:#4a5568;">
@@ -322,7 +307,6 @@
         </div>
     </div>
 
-    <!-- Weather chart -->
     <div class="sensor-card weather-card">
         <div class="sensor-header">
             <div class="sensor-name">Weather — 24h History</div>
@@ -377,14 +361,14 @@
             const traces = [
                 {
                     x: shallow.data.map(d => d.timestamp),
-                    y: shallow.data.map(d => d.temperature_c),
+                    y: shallow.data.map(d => d.temperature_f),
                     name: 'Shallow probe',
                     type: 'scatter',
                     line: { color: '#f56565' }
                 },
                 {
                     x: deep.data.map(d => d.timestamp),
-                    y: deep.data.map(d => d.temperature_c),
+                    y: deep.data.map(d => d.temperature_f),
                     name: 'Deep probe',
                     type: 'scatter',
                     line: { color: '#48bb78' }
@@ -392,7 +376,7 @@
             ];
             Plotly.newPlot('compost-chart', traces, {
                 xaxis: { title: 'Time' },
-                yaxis: { title: 'Temperature (°C)' },
+                yaxis: { title: 'Temperature (°F)' },
                 showlegend: true,
                 margin: { t: 10 }
             }, { responsive: true });
